@@ -10,7 +10,6 @@ COPY tsconfig.build.json ./
 COPY nest-cli.json ./
 RUN npx prisma generate
 RUN npm run build
-RUN ls -la dist
 
 # Stage 2: Production
 FROM node:20-alpine
@@ -21,4 +20,4 @@ COPY --from=buildenv /app/dist ./dist
 COPY --from=buildenv /app/prisma ./prisma
 
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node dist/main"]
