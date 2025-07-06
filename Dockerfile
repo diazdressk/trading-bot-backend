@@ -3,9 +3,13 @@ FROM node:20-alpine AS buildenv
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
-COPY . .
+COPY src ./src
+COPY prisma ./prisma
+COPY tsconfig.json ./
+COPY nest-cli.json ./
 RUN npx prisma generate
 RUN npm run build
+RUN ls -la dist
 
 # Stage 2: Production
 FROM node:20-alpine
