@@ -1,7 +1,5 @@
-# Use LTS Node.js version
-FROM node:20-alpine
-
-# Set working directory
+# Stage 1: Build
+FROM node:20-alpine AS buildenv
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -12,10 +10,10 @@ RUN npm run build
 # Stage 2: Production
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=builder /app/package*.json ./
+COPY --from=buildenv /app/package*.json ./
 RUN npm ci --only=production
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+COPY --from=buildenv /app/dist ./dist
+COPY --from=buildenv /app/prisma ./prisma
 
 EXPOSE 3000
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
