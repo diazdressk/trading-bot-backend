@@ -38,6 +38,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/nestjs_db?schema=pub
 JWT_SECRET="super-secret-jwt-key"
 JWT_REFRESH_EXPIRES="24h"
 JWT_ACCESS_EXPIRES="10M"
+FRONTEND_URL='urltofrontend'
 ```
 
 **Important:** Replace the JWT secrets with your own secure random strings in production.

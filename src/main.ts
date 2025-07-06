@@ -8,15 +8,24 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  const frontendUrl = process.env.FRONTEND_URL;
+
   // Configure CORS for production and development
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean);
+  const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+
+  if (frontendUrl) {
+    allowedOrigins.push(frontendUrl);
+  }
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -41,8 +50,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
-  // console.log(`Application is running on: http://localhost:${port}`);
-  // console.log(`Swagger documentation: http://localhost:${port}/api/docs`);
-  // console.log(`Prisma: http://localhost:5555`);
+  console.log(`Application is running on port: ${port}`);
+  console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
 }
 bootstrap();
