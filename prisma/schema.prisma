@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation with bots
+  bots Bot[]
+
+  @@map("users")
+}
+
+model Bot {
+  id                String    @id @default(cuid())
+  name              String
+  status            BotStatus @default(PAUSE)
+  symbol            String // Trading pair, e.g. "BTCUSDT"
+  deposit           Float // Deposit in the quoted currency
+  profit_percentage Float // Desired profit percentage
+  num_orders        Int // Number of grid orders
+  grid_length       Float // Grid length (%) between the first and last order
+  isPublic          Boolean   @default(false) // Public bot or user's bot
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relation with user (can be null for public bots)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Bot statistics
+  statistics BotStatistic[]
+
+  @@map("bots")
+}
+
+model BotStatistic {
+  id                String   @id @default(cuid())
+  cycles_completed  Int      @default(0) // How many cycles have been completed
+  deposit_usdt      Float    @default(0) // Deposit in USDT
+  profit_usdt       Float    @default(0) // Total profit in USDT
+  profit_percentage Float    @default(0) // Profit percentage: profit / deposit * 100
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relation with bot
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@map("bot_statistics")
+}
+
+enum BotStatus {
+  ACTIVE
+  PAUSE
+  ERROR
+}
