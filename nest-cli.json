@@ -4,11 +4,6 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": [
-      {
-        "include": "**/*.ts",
-        "watchAssets": true
-      }
-    ]
+    "assets": []
   }
 }
