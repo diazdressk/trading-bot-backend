@@ -8,8 +8,9 @@ COPY prisma ./prisma
 COPY tsconfig.json ./
 COPY nest-cli.json ./
 RUN npx prisma generate
+RUN echo "--- Listing files before build ---" && ls -la
 RUN npm run build
-RUN ls -la dist
+RUN echo "--- Listing dist folder after build ---" && ls -la dist
 
 # Stage 2: Production
 FROM node:20-alpine
