@@ -1,29 +1,19 @@
-# Use LTS Node.js version
-FROM node:18-alpine
-
-# Set working directory
+# Stage 1: Build
+FROM node:18-alpine AS builder
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy prisma schema
-COPY prisma ./prisma/
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Copy source code
+RUN npm install
 COPY . .
-
-# Build the application
+RUN npx prisma generate
 RUN npm run build
 
-# Expose port
-EXPOSE 3000
+# Stage 2: Production
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/package*.json ./
+RUN npm ci --only=production
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
-# Start the application with migrations
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"] 
+EXPOSE 3000
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
