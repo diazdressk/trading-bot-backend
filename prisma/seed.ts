@@ -4,7 +4,9 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  await prisma.botStatistic.deleteMany({});
+  await prisma.bot.deleteMany({});
+  await prisma.user.deleteMany({});
 
   const publicBots = [
     {
@@ -134,10 +136,8 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('password123', 10);
 
-  const testUser = await prisma.user.upsert({
-    where: { username: 'testuser' },
-    update: {},
-    create: {
+  const testUser = await prisma.user.create({
+    data: {
       username: 'testuser',
       password: hashedPassword,
     },
@@ -153,10 +153,8 @@ async function main() {
   for (const userData of additionalUsers) {
     const hashedPass = await bcrypt.hash(userData.password, 10);
 
-    await prisma.user.upsert({
-      where: { username: userData.username },
-      update: {},
-      create: {
+    const user = await prisma.user.create({
+      data: {
         username: userData.username,
         password: hashedPass,
       },

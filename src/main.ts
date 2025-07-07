@@ -10,7 +10,6 @@ async function bootstrap() {
 
   const frontendUrl = process.env.FRONTEND_URL;
 
-  // Configure CORS for production and development
   const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
 
   if (frontendUrl) {
@@ -19,7 +18,6 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
